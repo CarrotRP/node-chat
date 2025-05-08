@@ -8,6 +8,9 @@ require('dotenv').config();
 //for pw hashing
 const bcrypt = require('bcrypt');
 
+const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+
 const User = require('./models/userModel')
 const Chat = require('./models/chatModel');
 
@@ -58,64 +61,10 @@ app.get('/', checkAuth, (req, res) => {
         .then(result => res.render('home', { name: req.user.username, chats: result, uid: req.user._id.toString()}));
     // res.render('home', { name: req.user.username });
 })
-app.get('/users/signup', checkNotAuth, (req, res) => {
-    res.render('signup');
-})
-//2 ways to save stuff to db
-// handle user signup
-// app.post('/users/signup', async (req, res) => {
-//     const user = await User.create({
-//         username: req.body.username,
-//         password: req.body.password
-//     });
-//     // console.log(res.status(200).json(user));
 
-//     return res.status(200).json(user);
-// }) // no need to use .save()
-app.post('/users/signup', async (req, res) => {
-    try {
-        const saltRounds = 10; //how secure it will be..
-        const hashedPw = await bcrypt.hash(req.body.password, saltRounds);
-        const user = new User({
-            username: req.body.username,
-            password: hashedPw,
-        });
-        user.save()
-            .then((result) => {
-                res.redirect('/users/login')
-            }).catch((err) => console.log(err))
-    } catch {
-        res.redirect('/users/signup');
-    }
-}); // need .save()
-
-app.get('/users/login', checkNotAuth, (req, res) => {
-    res.render('login');
-})
-
-app.post('/users/login', passport.authenticate('local', {
-    failureRedirect: '/users/login',
-    successRedirect: '/',
-}))
-
-// app.get('/chats', (req, res) => {
-//     res.redirect('/');
-// })
-app.post('/chats/:id', (req, res) => {
-    const id = req.params.id;
-    Chat.findById(id)
-        .then(result => {
-            res.status(200).json(result);
-    })
-})
-//get username by id
-app.post('/chats/getUser/:id', (req, res) => {
-    const id = req.params.id;
-    User.findById(id)
-        .then(result => {
-            res.status(200).json(result)
-        })
-})
+//user routes
+app.use('/users', userRoutes);
+app.use('/chats', chatRoutes);
 
 app.post('/logout', (req, res, next) => {
     req.logout(err => {
@@ -137,7 +86,8 @@ app.get('/createM', (req, res) => {
                 message: "hello dawg"
             }
         ]}},
-    ).then(result => res.send(result));
+    ).then(result => res.json(result));
+    // .then(result => res.send(result));
     // message.save()
     //     .then(result => res.send(result));
     
@@ -152,14 +102,6 @@ function checkAuth(req, res, next) {
     }
     res.redirect('/users/login');
 }
-//prevent user from going back to login page after login
-function checkNotAuth(req, res, next) {
-    if (req.isAuthenticated()) { //if session is valid or user alr logged in go to home('/')
-        return res.redirect('/')
-    }
-    next(); //else go next
-}
-
 
 app.use((req, res) => {
     res.status(404).render('error');

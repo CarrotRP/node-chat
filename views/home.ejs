@@ -17,7 +17,6 @@
 </body>
 <script>
     const ledropdown = () => {
-
         const dropdown = document.querySelector(".dropdown-content");
 
         dropdown.classList.toggle('show');
@@ -25,22 +24,30 @@
     //display messages in inbox.ejs
     document.querySelectorAll('.chat').forEach(item => {
         item.addEventListener('click', async () => {
-            const id = item.dataset.id
-            console.log(id);
+            const id = item.dataset.id;
             const endpoint = "/chats/" + id;
-            console.log(endpoint)
 
             const res = await fetch(endpoint, {
                 method: 'POST'
             });
             const data = await res.json();
             let html = '';
+            //current userID
+            const userId = "<%=uid%>";
+
+            console.log(data);
+            //setting the top bar name
+            document.querySelector('.chat-name').innerHTML = data.ChatName;
+            document.querySelector('.chat-img').src = `data:img/jpg;base64,${data.Img}`;
+            //set form action
+            // document.querySelector('.inp').action = `/chats/${data._id}/send`;
+            document.querySelector('.submit').addEventListener('click', () => sendMessage(data._id, document.querySelector('.message').value));
 
             if (data.messages.length > 0) {
                 for (let i = 0; i < data.messages.length; i++) {
                     let name = await getName(data.messages[i].messager);
                     html += `
-                            <div class="box">
+                            <div class=" ${data.messages[i].messager == userId ? 'box currentUser' : 'box'}">
                                 name: ${name}
                                 text: ${data.messages[i].message}  
                             </div>
@@ -59,6 +66,22 @@
         const data = await res.json();
 
         return data.username;
+    }
+    const sendMessage = async (id, msg) => {
+
+        console.log(msg);
+        const formData = {
+            message: msg,
+        }
+
+        const res = await fetch(`/chats/${id}/send`, {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const data = await res.json();
     }
 
 </script>

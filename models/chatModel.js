@@ -2,13 +2,22 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const chatSchema = new Schema({
-    Messager: {
-        type: ObjectId,
-    },
-    Message: {
+const inChatSchema = new Schema({
+    messager: {
         type: String,
     },
+    message: {
+        type: String,
+    }
+}, { timestamps: true })
+const chatSchema = new Schema({
+    ChatName: {
+        type: String
+    },
+    Img: {
+        type: String
+    },
+    messages: [inChatSchema],
 }, { timestamps: true });
 
 const Chat = mongoose.model('Chat', chatSchema)

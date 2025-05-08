@@ -72,6 +72,10 @@ section.left-side{
     width: 60px;
     height: 60px;
 }
+.chats a{
+    text-decoration: none;
+    color: var(--txt-color);
+}
 .chat{
     display: flex;
     flex-direction: row;

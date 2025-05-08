@@ -4,21 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Chat</title>
+    <title>Le Chat + <%= name %>
+    </title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <main>
         <%- include('./partial/chats') %>
-        <%- include('./partial/inbox') %>
+            <%- include('./partial/inbox') %>
     </main>
 </body>
 <script>
-    const dropdown = () => {
+    const ledropdown = () => {
+
         const dropdown = document.querySelector(".dropdown-content");
-        
+
         dropdown.classList.toggle('show');
     }
+    //display messages in inbox.ejs
+    document.querySelectorAll('.chat').forEach(item => {
+        item.addEventListener('click', async () => {
+            const id = item.dataset.id
+            console.log(id);
+            const endpoint = "/chats/" + id;
+            console.log(endpoint)
+
+            const res = await fetch(endpoint, {
+                method: 'POST'
+            });
+            const data = await res.json();
+            let html = '';
+
+            if (data.messages.length > 0) {
+                for (let i = 0; i < data.messages.length; i++) {
+                    let name = await getName(data.messages[i].messager);
+                    html += `
+                            <div class="box">
+                                name: ${name}
+                                text: ${data.messages[i].message}  
+                            </div>
+                        `;
+                }
+            }
+            document.querySelector('.messages').innerHTML = html;
+        });
+
+    })
+    
+    async function getName(id) {
+        const res = await fetch(`/chats/getUser/${id}`, {
+            method: 'POST'
+        })
+        const data = await res.json();
+
+        return data.username;
+    }
+
 </script>
+
 </html>

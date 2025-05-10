@@ -18,7 +18,7 @@ const chat_send = (req, res) => {
                 messager: req.user._id,
                 message: req.body.message,
             }
-    }}).then(result => res.send(result));
+    }}).then(result => res.json(result));
 }
 
 //for fetching user info (shouldve use a user route instead)

@@ -22,66 +22,76 @@
         dropdown.classList.toggle('show');
     }
     //display messages in inbox.ejs
+    let current_chat_id = "";
     document.querySelectorAll('.chat').forEach(item => {
         item.addEventListener('click', async () => {
-            const id = item.dataset.id;
-            const endpoint = "/chats/" + id;
+            current_chat_id = item.dataset.id;
 
-            const res = await fetch(endpoint, {
-                method: 'POST'
-            });
-            const data = await res.json();
-            let html = '';
-            //current userID
-            const userId = "<%=uid%>";
+            loadChat(current_chat_id);
 
-            console.log(data);
-            //setting the top bar name
-            document.querySelector('.chat-name').innerHTML = data.ChatName;
-            document.querySelector('.chat-img').src = `data:img/jpg;base64,${data.Img}`;
-            //set form action
-            // document.querySelector('.inp').action = `/chats/${data._id}/send`;
-            document.querySelector('.submit').addEventListener('click', () => sendMessage(data._id, document.querySelector('.message').value));
-
-            if (data.messages.length > 0) {
-                for (let i = 0; i < data.messages.length; i++) {
-                    let name = await getName(data.messages[i].messager);
-                    html += `
-                            <div class=" ${data.messages[i].messager == userId ? 'box currentUser' : 'box'}">
-                                name: ${name}
-                                text: ${data.messages[i].message}  
-                            </div>
-                        `;
-                }
-            }
-            document.querySelector('.messages').innerHTML = html;
         });
 
     })
-    
-    async function getName(id) {
-        const res = await fetch(`/chats/getUser/${id}`, {
+    async function loadChat(id) {
+        const endpoint = "/chats/" + id;
+        const res = await fetch(endpoint, {
             method: 'POST'
+        });
+        const data = await res.json();
+        let html = '';
+        //current userID
+        const userId = "<%=uid%>";
+        //setting the top bar name
+        document.querySelector('.chat-name').innerHTML = data.ChatName;
+        document.querySelector('.chat-img').src = `data:img/jpg;base64,${data.Img}`;
+        //set form action
+        // document.querySelector('.inp').action = `/chats/${data._id}/send`;
+
+        if (data.messages.length > 0) {
+            for (let i = 0; i < data.messages.length; i++) {
+                console.log(data.messages[i])
+                let name = await getName(data.messages[i].messager);
+                html += `
+                <div class=" ${data.messages[i].messager == userId ? 'box currentUser' : 'box'}">
+                    name: ${name}
+                    text: ${data.messages[i].message}  
+                    time: ${data.messages[i].createdAt}
+                    </div>
+                    `;
+            }
+        }
+        document.querySelector('.messages').innerHTML = html;
+    }
+    document.querySelector('.submit').addEventListener('click', async () => await sendMessage(current_chat_id));
+
+    async function getName(id) {
+
+        const res = await fetch(`/chats/getUser/${id}`, {
+            method: 'POST',
         })
         const data = await res.json();
 
         return data.username;
     }
-    const sendMessage = async (id, msg) => {
+    const sendMessage = async (id) => {
 
-        console.log(msg);
-        const formData = {
-            message: msg,
-        }
+        let input = document.querySelector('.message');
 
         const res = await fetch(`/chats/${id}/send`, {
             method: 'POST',
             headers: {
-                'Content-Type' : 'application/json'
+                "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: JSON.stringify(formData)
+            body: new URLSearchParams({
+                message: input.value
+            }).toString()
         });
         const data = await res.json();
+        console.log(res);
+        if (res.status == 200) {
+            loadChat(current_chat_id);
+            input.value = "";
+        }
     }
 
 </script>

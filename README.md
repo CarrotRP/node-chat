@@ -1,7 +1,7 @@
 # A Chatting app with NodeJS & Express
 
-** This is an app that I build for practicing Node and express**
-** NO AI were used for this project **
+**This is an app that I build for practicing Node and express**
+**NO AI were used for this project**
 
 A simple chatting app, though there is no websocket used, or polling implemented. (tested only in local)
 some css styling missing in login/signup

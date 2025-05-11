@@ -16,6 +16,7 @@
     </main>
 </body>
 <script>
+    //TODO: USE A POLL(interval calling) OR websocket in node
     const ledropdown = () => {
         const dropdown = document.querySelector(".dropdown-content");
 
@@ -42,6 +43,11 @@
         //current userID
         const userId = "<%=uid%>";
         //setting the top bar name
+        if (id) {
+            document.querySelector('.right-side').classList.remove('right-side-none');
+        } else {
+            document.querySelector('.right-side').classList.add('right-side-none');
+        }
         document.querySelector('.chat-name').innerHTML = data.ChatName;
         document.querySelector('.chat-img').src = `data:img/jpg;base64,${data.Img}`;
         //set form action
@@ -49,18 +55,41 @@
 
         if (data.messages.length > 0) {
             for (let i = 0; i < data.messages.length; i++) {
-                console.log(data.messages[i])
                 let name = await getName(data.messages[i].messager);
+
+                //formating date
+                //not using npm cuz i "dOnT NeEd It" 🗿, could use it
+                let date = new Date(data.messages[i].createdAt);
+                const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                // let time = date.getHours();
+                let day = weekday[date.getDay()];
+                let ddate = date.getDate();
+                let month = months[date.getMonth()];
+                let year = date.getFullYear();
+
+                //time
+                let hour = date.getHours();
+                let min = date.getMinutes();
+
+                let display_timestamp = `${day} ${ddate} ${month} ${year}, ${hour}:${min}`;
+                let isCurrentUser = data.messages[i].messager == userId ? true : false;
+
+                //dont need to display name for current user msg
                 html += `
-                <div class=" ${data.messages[i].messager == userId ? 'box currentUser' : 'box'}">
-                    name: ${name}
-                    text: ${data.messages[i].message}  
-                    time: ${data.messages[i].createdAt}
+                <div class=" ${isCurrentUser ? 'box currentUser' : 'box'}"  id="${i}">
+                    <h4>${isCurrentUser ? "" : name}</h4>
+                    <p>${data.messages[i].message}</p>  
+                    <p>${display_timestamp}</p>
                     </div>
                     `;
             }
         }
+
         document.querySelector('.messages').innerHTML = html;
+        //scroll to the last element
+        const element = document.getElementById(`${data.messages.length - 1}`);
+        element.scrollIntoView({ behavior: "smooth"});
     }
     document.querySelector('.submit').addEventListener('click', async () => await sendMessage(current_chat_id));
 
@@ -87,7 +116,6 @@
             }).toString()
         });
         const data = await res.json();
-        console.log(res);
         if (res.status == 200) {
             loadChat(current_chat_id);
             input.value = "";

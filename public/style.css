@@ -9,6 +9,7 @@
     box-sizing: border-box;
 }
 body{
+    background-color: black;
     color: var(--txt-color);
     font-family: 'Roboto';
 }
@@ -97,6 +98,10 @@ section.left-side{
 section.right-side{
     width: 75vw;
     background-color: black;
+    overflow-y: hidden;
+}
+.right-side-none{
+    display: none;
 }
 .bar{
     background-color: #212121;
@@ -116,9 +121,9 @@ section.right-side{
     margin-left: auto;
     position:fixed;
     bottom: 20px;
-    display: flex;
     justify-content: center;
     gap: 10px;
+    display: flex;
 }
 input{
     padding: 15px;
@@ -140,6 +145,27 @@ input:focus{
 }
 
 /* inbox css */
+.message-container{
+    overflow-y: auto;
+    max-height: 82vh;
+}
+/* hiding scroll bar visiblitiy */
+.message-container::-webkit-scrollbar{
+    display: none;
+}
+.messages{
+    width: 35vw; /*oddly specific*/
+    margin:10px auto;
+}
+.box{
+    background-color: #212121;
+    width: 200px;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 2px 0;
+    /* min-width:  */
+}
 .currentUser{
-    color: lightblue;
+    background-color: #8774E1;
+    margin-left: auto;
 }

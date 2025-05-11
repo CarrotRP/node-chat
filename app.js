@@ -73,26 +73,6 @@ app.post('/logout', (req, res, next) => {
         res.redirect('/users/login');
     })
 })
-app.get('/createM', (req, res) => {
-    const message = Chat.findOneAndUpdate(
-        { ChatName: "Le Chat"},
-        { $set: { messages: [
-            {
-                messager: "68139350f2914273380ca569",
-                message: "hello"
-            },
-            {
-                messager: "6816137dccad0626722a6984",
-                message: "hello dawg"
-            }
-        ]}},
-    ).then(result => res.json(result));
-    // .then(result => res.send(result));
-    // message.save()
-    //     .then(result => res.send(result));
-    
-    // res.render('login');
-})
 
 //check if user is logged in(have a session), function used in app.get('/')
 //to prevent access if not logged in
